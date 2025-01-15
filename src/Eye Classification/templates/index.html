@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye Disease Classification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Eye Disease Classification</h1>
+        <p>Upload a fundus image to predict the eye disease:</p>
+
+        <!-- Upload Form -->
+        <form id="upload-form" action="/predict" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Upload Image</button>
+        </form>
+
+        <!-- Result Section -->
+        <div id="result" style="display:none;">
+            <h3>Prediction Result:</h3>
+            <p id="prediction"></p>
+            <p id="confidence"></p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" style="color: red; display:none;">
+            <p>There was an error uploading the image. Please try again.</p>
+        </div>
+    </div>
+
+    <script>
+        // Handling form submission using JavaScript to show result without page refresh
+        document.getElementById('upload-form').onsubmit = async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                document.getElementById('error-message').style.display = 'block';
+            } else {
+                document.getElementById('error-message').style.display = 'none';
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('prediction').textContent = 'Disease: ' + result.prediction;
+                document.getElementById('confidence').textContent = 'Confidence: ' + result.confidence;
+            }
+        };
+    </script>
+</body>
+</html>
